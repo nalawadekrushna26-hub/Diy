@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="bg-white border rounded p-5 text-center">
+  <h1 class="display-6 fw-bold mb-2">500 — Unexpected Error</h1>
+  <p class="text-secondary mb-4">Something went wrong on the server. Please try again shortly.</p>
+  <a href="{{ url_for('main.index') }}" class="btn btn-editorial btn-sm">Return Home</a>
+</div>
+{% endblock %}

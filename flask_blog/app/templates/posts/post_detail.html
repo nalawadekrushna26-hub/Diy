@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+
+<article class="bg-white border rounded p-4 p-md-5 mb-5">
+  <div class="meta-line mb-2">
+    <a href="{{ url_for('main.index', category=post.category.slug) if post.category else url_for('main.index') }}" class="text-decoration-none text-secondary fw-semibold">
+      {{ post.category.name if post.category else 'General' }}
+    </a>
+    <span> &middot; </span>
+    <span>{{ post.created_at.strftime('%B %d, %Y') }}</span>
+    <span> &middot; </span>
+    <span>{{ post.reading_minutes }} min read</span>
+  </div>
+
+  <h1 class="display-5 fw-bold mb-3">{{ post.title }}</h1>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-4 mb-4 border-bottom">
+    <div class="small">
+      Written by
+      <a href="{{ url_for('auth.user_profile', username=post.author.username) }}" class="fw-semibold text-dark text-decoration-none">
+        {{ post.author.username }}
+      </a>
+    </div>
+
+    {% if current_user.is_authenticated and current_user.id == post.user_id %}
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('posts.edit_post', post_id=post.id) }}" class="btn btn-outline-dark btn-sm">Edit Post</a>
+        <form action="{{ url_for('posts.delete_post', post_id=post.id) }}" method="post" data-confirm="Delete this article permanently?">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="article-prose">
+    {{ post.content | safe }}
+  </div>
+
+  {% if post.tags %}
+    <div class="pt-4 mt-4 border-top d-flex flex-wrap gap-3 small">
+      {% for tag in post.tags %}
+        <a href="{{ url_for('main.index', tag=tag.name) }}" class="text-secondary text-decoration-none">#{{ tag.name }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</article>
+
+<!-- Comments Section (Week 5) -->
+<section id="comments" class="bg-white border rounded p-4 p-md-5">
+  <h2 class="h4 fw-bold mb-4">Comments ({{ post.comments|length }})</h2>
+
+  {% if current_user.is_authenticated %}
+    <form action="{{ url_for('comments.add_comment', post_id=post.id) }}" method="post" class="mb-5">
+      {{ comment_form.hidden_tag() }}
+      <div class="mb-3">
+        {{ comment_form.body(class="form-control", rows=3, placeholder="Share a thoughtful response...") }}
+      </div>
+      <button type="submit" class="btn btn-editorial btn-sm px-4">Post Comment</button>
+    </form>
+  {% else %}
+    <p class="small text-secondary mb-4">
+      <a href="{{ url_for('auth.login', next=request.path) }}" class="text-dark fw-semibold">Sign in</a> to join the discussion.
+    </p>
+  {% endif %}
+
+  {% if post.comments %}
+    <div class="d-flex flex-column gap-3">
+      {% for comment in post.comments %}
+        <div class="border rounded p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2 small">
+            <div>
+              <a href="{{ url_for('auth.user_profile', username=comment.author.username) }}" class="fw-semibold text-dark text-decoration-none">
+                {{ comment.author.username }}
+              </a>
+              <span class="text-secondary"> &middot; {{ comment.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+            </div>
+
+            {% if current_user.is_authenticated and current_user.id == comment.user_id %}
+              <div class="d-flex gap-2">
+                <a href="{{ url_for('comments.edit_comment', comment_id=comment.id) }}" class="text-dark small">Edit</a>
+                <form action="{{ url_for('comments.delete_comment', comment_id=comment.id) }}" method="post" data-confirm="Delete this comment?">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                  <button type="submit" class="btn btn-link text-danger p-0 small text-decoration-none">Delete</button>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+          <p class="mb-0 small">{{ comment.body }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="small text-secondary mb-0">No comments yet. Be the first to share your thoughts.</p>
+  {% endif %}
+</section>
+
+{% endblock %}

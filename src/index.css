@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif-display: 'Playfair Display', Georgia, serif;
+    --font-serif-prose: 'Source Serif 4', Georgia, serif;
+    --font-sans-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-mono-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+
+  html {
+    background-color: #fbf9f5;
+    color: #1c1917;
+    font-family: var(--font-sans-ui);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: #fbf9f5;
+    color: #1c1917;
+  }
+}
+
+.font-display {
+  font-family: var(--font-serif-display);
+}
+
+.font-prose {
+  font-family: var(--font-serif-prose);
+}
+
+.font-code {
+  font-family: var(--font-mono-code);
+}
+
+/* Clean editorial article prose formatting */
+.editorial-prose {
+  font-family: var(--font-serif-prose);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: #292524;
+  max-width: 68ch;
+}
+
+.editorial-prose p {
+  margin-bottom: 1.25rem;
+}
+
+.editorial-prose h2,
+.editorial-prose h3,
+.editorial-prose h4 {
+  font-family: var(--font-serif-display);
+  color: #1c1917;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.editorial-prose h2 {
+  font-size: 1.625rem;
+}
+
+.editorial-prose h3 {
+  font-size: 1.3rem;
+}
+
+.editorial-prose ul,
+.editorial-prose ol {
+  margin: 1rem 0 1.25rem 1.5rem;
+}
+
+.editorial-prose ul {
+  list-style-type: disc;
+}
+
+.editorial-prose ol {
+  list-style-type: decimal;
+}
+
+.editorial-prose li {
+  margin-bottom: 0.45rem;
+}
+
+.editorial-prose blockquote {
+  padding: 0.75rem 0;
+  margin: 1.5rem 0;
+  border-top: 1px solid #d6d3d1;
+  border-bottom: 1px solid #d6d3d1;
+  font-style: italic;
+  font-size: 1.25rem;
+  color: #44403c;
+}
+
+.editorial-prose pre {
+  background: #1c1917;
+  color: #f5f5f4;
+  font-family: var(--font-mono-code);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.25rem 0;
+}
+
+.editorial-prose code {
+  font-family: var(--font-mono-code);
+  font-size: 0.875em;
+  background: #f5f5f4;
+  padding: 0.125rem 0.35rem;
+  border-radius: 0.25rem;
+}
+
+.editorial-prose pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.editorial-prose a {
+  color: #9a3412;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

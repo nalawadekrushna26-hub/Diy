@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Editorial Hero -->
+<section class="pb-4 mb-4 border-bottom">
+  <div class="row align-items-end g-3">
+    <div class="col-lg-8">
+      <p class="text-uppercase small text-secondary mb-2" style="letter-spacing: 0.1em;">Editorial Archive</p>
+      <h1 class="display-5 fw-bold mb-2">Essays on Engineering, Architecture &amp; Craft</h1>
+      <p class="text-secondary mb-0">Read thoughtful articles from the community, filter by topic, or publish your own story.</p>
+    </div>
+    <div class="col-lg-4 text-lg-end">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('posts.create_post') }}" class="btn btn-editorial px-4 py-2">Write an Article</a>
+      {% else %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-editorial px-4 py-2">Join &amp; Start Writing</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Category Filter Bar (Week 6) -->
+<section class="mb-4">
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+    <span class="small text-secondary me-2">Categories:</span>
+    <a href="{{ url_for('main.index') }}" class="btn btn-sm {{ 'btn-dark' if not active_category else 'btn-outline-secondary' }}">All</a>
+    {% for cat in categories %}
+      <a href="{{ url_for('main.index', category=cat.slug) }}"
+         class="btn btn-sm {{ 'btn-dark' if active_category and active_category.id == cat.id else 'btn-outline-secondary' }}">
+        {{ cat.name }}
+      </a>
+    {% endfor %}
+  </div>
+
+  {% if tags %}
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <span class="small text-secondary me-2">Topics:</span>
+      {% for tag in tags %}
+        <a href="{{ url_for('main.index', tag=tag.name) }}"
+           class="small text-decoration-none {{ 'fw-bold text-dark' if active_tag and active_tag.id == tag.id else 'text-secondary' }}">
+          #{{ tag.name }}
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+<!-- Blog Posts Grid -->
+{% if posts.items %}
+  <div class="row g-4">
+    {% for post in posts.items %}
+      <div class="col-md-6 col-lg-4">
+        <article class="editorial-card h-100 p-4 d-flex flex-column justify-content-between">
+          <div>
+            <div class="meta-line mb-2">
+              <span>{{ post.category.name if post.category else 'General' }}</span>
+              <span> &middot; </span>
+              <span>{{ post.created_at.strftime('%b %d, %Y') }}</span>
+              <span> &middot; </span>
+              <span>{{ post.reading_minutes }} min read</span>
+            </div>
+            <h2 class="h4 fw-bold mb-2">
+              <a href="{{ url_for('posts.post_detail', post_id=post.id) }}" class="text-decoration-none text-dark">
+                {{ post.title }}
+              </a>
+            </h2>
+            <p class="text-secondary small mb-3">
+              {{ post.summary or (post.content | striptags | truncate(140)) }}
+            </p>
+          </div>
+          <div class="pt-3 border-top d-flex justify-content-between align-items-center small">
+            <a href="{{ url_for('auth.user_profile', username=post.author.username) }}" class="text-decoration-none text-dark fw-medium">
+              By {{ post.author.username }}
+            </a>
+            <span class="text-secondary">{{ post.comments|length }} comments</span>
+          </div>
+        </article>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination Controls (Week 4) -->
+  {% if posts.pages > 1 %}
+    <nav aria-label="Blog pagination" class="mt-5">
+      <ul class="pagination justify-content-center">
+        <li class="page-item {{ 'disabled' if not posts.has_prev }}">
+          <a class="page-link" href="{{ url_for('main.index', page=posts.prev_num, category=active_category.slug if active_category else None, tag=active_tag.name if active_tag else None) }}">Previous</a>
+        </li>
+        {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+          {% if page_num %}
+            <li class="page-item {{ 'active' if page_num == posts.page }}">
+              <a class="page-link" href="{{ url_for('main.index', page=page_num, category=active_category.slug if active_category else None, tag=active_tag.name if active_tag else None) }}">{{ page_num }}</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+          {% endif %}
+        {% endfor %}
+        <li class="page-item {{ 'disabled' if not posts.has_next }}">
+          <a class="page-link" href="{{ url_for('main.index', page=posts.next_num, category=active_category.slug if active_category else None, tag=active_tag.name if active_tag else None) }}">Next</a>
+        </li>
+      </ul>
+    </nav>
+  {% endif %}
+{% else %}
+  <div class="bg-white border rounded p-5 text-center">
+    <h2 class="h4 mb-2">No articles found</h2>
+    <p class="text-secondary mb-3">There are no posts matching the selected filter yet.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-outline-dark btn-sm">Clear Filters</a>
+  </div>
+{% endif %}
+
+{% endblock %}

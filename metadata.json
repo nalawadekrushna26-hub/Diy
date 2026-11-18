@@ -1,0 +1,6 @@
+{
+  "name": "Inkwell — Flask Blog Studio",
+  "description": "A full-stack editorial blog platform paired with a complete 7-week Python Flask codebase, SQLite persistence, authentication, rich-text publishing, comments, search, and pagination.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

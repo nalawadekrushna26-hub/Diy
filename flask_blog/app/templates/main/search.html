@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="mb-4 pb-3 border-bottom">
+  <h1 class="h2 fw-bold mb-3">Search Articles</h1>
+  <form action="{{ url_for('main.search') }}" method="get" class="row g-2 align-items-center">
+    <div class="col-md-6">
+      <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search by title, summary, or content..." />
+    </div>
+    <div class="col-md-4">
+      <select name="category" class="form-select">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+          <option value="{{ cat.slug }}" {{ 'selected' if active_category and active_category.id == cat.id }}>
+            {{ cat.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-grid">
+      <button type="submit" class="btn btn-editorial">Search</button>
+    </div>
+  </form>
+</section>
+
+{% if q or active_category or active_tag %}
+  <p class="small text-secondary mb-4">
+    Showing {{ posts.total }} result{{ '' if posts.total == 1 else 's' }}
+    {% if q %}for <strong>"{{ q }}"</strong>{% endif %}
+    {% if active_category %}in <strong>{{ active_category.name }}</strong>{% endif %}
+    {% if active_tag %}tagged <strong>#{{ active_tag.name }}</strong>{% endif %}.
+  </p>
+{% endif %}
+
+{% if posts.items %}
+  <div class="list-group list-group-flush bg-white border rounded">
+    {% for post in posts.items %}
+      <article class="list-group-item p-4">
+        <div class="meta-line mb-1">
+          <span>{{ post.category.name if post.category else 'General' }}</span>
+          <span> &middot; </span>
+          <span>{{ post.created_at.strftime('%b %d, %Y') }}</span>
+          <span> &middot; </span>
+          <span>By {{ post.author.username }}</span>
+        </div>
+        <h2 class="h5 fw-bold mb-2">
+          <a href="{{ url_for('posts.post_detail', post_id=post.id) }}" class="text-decoration-none text-dark">{{ post.title }}</a>
+        </h2>
+        <p class="small text-secondary mb-0">{{ post.summary or (post.content | striptags | truncate(180)) }}</p>
+      </article>
+    {% endfor %}
+  </div>
+
+  {% if posts.pages > 1 %}
+    <nav aria-label="Search pagination" class="mt-4">
+      <ul class="pagination justify-content-center">
+        <li class="page-item {{ 'disabled' if not posts.has_prev }}">
+          <a class="page-link" href="{{ url_for('main.search', q=q, page=posts.prev_num, category=active_category.slug if active_category else None) }}">Previous</a>
+        </li>
+        {% for page_num in posts.iter_pages() %}
+          {% if page_num %}
+            <li class="page-item {{ 'active' if page_num == posts.page }}">
+              <a class="page-link" href="{{ url_for('main.search', q=q, page=page_num, category=active_category.slug if active_category else None) }}">{{ page_num }}</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+          {% endif %}
+        {% endfor %}
+        <li class="page-item {{ 'disabled' if not posts.has_next }}">
+          <a class="page-link" href="{{ url_for('main.search', q=q, page=posts.next_num, category=active_category.slug if active_category else None) }}">Next</a>
+        </li>
+      </ul>
+    </nav>
+  {% endif %}
+{% else %}
+  <div class="bg-white border rounded p-5 text-center">
+    <h2 class="h5 fw-bold mb-2">No matching posts found</h2>
+    <p class="text-secondary small mb-3">Try a different keyword or remove category filters.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-outline-dark btn-sm">Back to All Articles</a>
+  </div>
+{% endif %}
+
+{% endblock %}

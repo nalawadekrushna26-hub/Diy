@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}{{ title or 'Inkwell' }} · Inkwell Journal{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navigation Bar (Week 4) -->
+  <nav class="navbar navbar-expand-lg border-bottom bg-white sticky-top py-3">
+    <div class="container">
+      <a class="navbar-brand editorial-title fs-4 fw-bold text-dark" href="{{ url_for('main.index') }}">
+        Inkwell
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.index') }}">Articles</a>
+          </li>
+          {% if current_user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('posts.create_post') }}">Write Post</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.profile') }}">Profile</a>
+            </li>
+          {% endif %}
+        </ul>
+
+        <!-- Search Bar (Week 6) -->
+        <form class="d-flex me-lg-3 my-2 my-lg-0" action="{{ url_for('main.search') }}" method="get" role="search">
+          <input class="form-control form-control-sm me-2" type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="Search articles..." aria-label="Search articles" />
+          <button class="btn btn-outline-dark btn-sm" type="submit">Search</button>
+        </form>
+
+        <div class="d-flex align-items-center gap-2">
+          {% if current_user.is_authenticated %}
+            <span class="small text-secondary me-1">Signed in as <strong>{{ current_user.username }}</strong></span>
+            <form action="{{ url_for('auth.logout') }}" method="post" class="d-inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit" class="btn btn-outline-secondary btn-sm">Sign Out</button>
+            </form>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-dark btn-sm">Sign In</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-editorial btn-sm">Register</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Content -->
+  <main class="container py-4 flex-grow-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-top bg-white py-4 mt-5">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small text-secondary">
+      <span>Inkwell Blog &middot; Built with Python Flask, SQLAlchemy &amp; Bootstrap 5</span>
+      <span><a href="{{ url_for('main.index') }}" class="text-decoration-none text-secondary">Home</a> &middot; <a href="{{ url_for('main.search') }}" class="text-decoration-none text-secondary">Search</a></span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
